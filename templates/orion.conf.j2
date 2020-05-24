@@ -1,0 +1,36 @@
+# node api=other orion nodes
+nodeurl="http://{{ orion_node_ip }}:8080/"
+nodeport=8080
+nodenetworkinterface="{{ orion_node_network_interface }}"
+othernodes=[{{orion_othernodes|map('to_json')|join(',')}}]
+
+# client api=besu node
+clienturl="http://{{ orion_client_ip }}:8888/"
+clientport=8888
+clientnetworkinterface="{{ orion_node_client_interface }}"
+
+workdir="{{ orion_data_dir }}"
+publickeys=[{{orion_public_keys|map('to_json')|join(',')}}]
+privatekeys=[{{orion_private_keys|map('to_json')|join(',')}}]
+passwords="{{ orion_password_file }}"
+
+# tls
+tls="{{ orion_tls }}"
+{% if orion_tls != "off" %}
+tlsservercert="{{ orion_tls_server_cert }}"
+tlsserverchain=["{{ orion_tls_server_chain }}"]
+tlsserverkey="{{ orion_tls_server_key }}"
+tlsclientcert="{{ orion_tls_client_cert }}"
+tlsclientchain=[{{orion_tls_client_chain|map('to_json')|join(',')}}]
+tlsclientkey="{{ orion_tls_client_key }}"
+tlsclienttrust="{{ orion_tls_client_trust }}"
+tlsservertrust="{{ orion_tls_server_trust }}"
+
+clientconnectiontls="{{ orion_client_connection_tls }}"
+clientconnectiontlsservercert="{{ orion_client_connection_tls_server_cert }}"
+clientconnectiontlscertchain=[{{orion_client_connection_tls_server_chain|map('to_json')|join(',')}}]
+clientconnectiontlsserverkey="{{ orion_client_connection_tls_server_key }}"
+clientconnectiontlsservertrust="{{ orion_client_connection_tls_server_trust }}"
+clientconnectiontlsknownclients="{{ orion_client_connection_tls_known_clients }}"
+{% endif %}
+

@@ -1,0 +1,26 @@
+[Unit]
+Description=Orion
+After=syslog.target network.target
+
+[Service]
+User={{ orion_user }}
+Group={{ orion_group }}
+Environment=HOME=/home/{{ orion_user }}
+{% if orion_log4j_config_file != "" %}
+Environment=LOG4J_CONFIGURATION_FILE={{ orion_log4j_config_file }}
+{% endif %}
+{% if orion_env_opts %}
+Environment='ORION_OPTS={{orion_env_opts|map('to_json')|join(' ')}}'
+{% endif %}
+Type=simple
+{% if orion_cmdline_args %}
+ExecStart=/bin/sh -c "{{ orion_current_dir }}/bin/orion {{ orion_config_dir }}/orion.conf {{orion_cmdline_args|map('to_json')|join(' ')}} >> {{ orion_log_dir }}/orion.log 2>&1"
+{% else %}
+ExecStart=/bin/sh -c "{{ orion_current_dir }}/bin/orion {{ orion_config_dir }}/orion.conf >> {{ orion_log_dir }}/orion.log 2>&1"
+{% endif %}
+SuccessExitStatus=143
+Restart=on-failure
+RestartSec=10s
+
+[Install]
+WantedBy=multi-user.target

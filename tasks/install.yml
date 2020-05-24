@@ -1,0 +1,80 @@
+---
+- name: Ensure Orion group exists
+  group:
+    name: "{{ orion_group }}"
+    state: present
+  become: true
+
+- name: Create Orion user
+  user:
+    comment:  Orion client user
+    name: "{{ orion_user }}"
+    group: "{{ orion_group }}"
+  become: true
+
+- name: Create base directory
+  file:
+    path: "{{ orion_base_dir }}"
+    state: directory
+    owner: "{{ orion_user }}"
+    group: "{{ orion_group }}"
+  become: true
+
+- name: Create install directory
+  file:
+    path: "{{ orion_install_dir }}"
+    state: directory
+    owner: "{{ orion_user }}"
+    group: "{{ orion_group }}"
+  become: true
+
+- name: Create log directory
+  file:
+    path: "{{ orion_log_dir }}"
+    state: directory
+    owner: "{{ orion_user }}"
+    group: "{{ orion_group }}"
+  become: true
+
+- name: Setup logrotate
+  template:
+    src: "logrotate/orion"
+    dest: "/etc/logrotate.d/orion"
+  become: true
+
+- name: Extract Orion distrubution to install directory
+  unarchive:
+    src: "{{ orion_download_url }}"
+    remote_src: true
+    dest: "{{ orion_install_dir }}"
+    owner: "{{ orion_user }}"
+    group: "{{ orion_group }}"
+    mode: '0775'
+    extra_opts:
+      - --strip-components
+      - '1'
+  become: true
+  register: extract_src
+  
+- name: Set updated optionally to trigger a systemd restart at the end
+  set_fact:
+    orion_state_updates: "{{ orion_state_updates + ['orion.install_dir'] }}"
+  when: extract_src is changed
+
+# will throw error the first time you install since the service isnt present
+- name: Stop Orion systemd service if running
+  service:
+    name: orion
+    state: stopped
+  when: ( extract_src is changed ) and
+    ( orion_managed_service ) and
+    ( ansible_os_family != "Darwin" )
+  become: true
+  ignore_errors: true
+
+- name: Create a symlink to current
+  file:
+    src: "{{ orion_install_dir }}/"
+    dest: "{{ orion_current_dir }}"
+    state: link
+  become: true

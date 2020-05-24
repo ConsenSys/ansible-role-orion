@@ -1,0 +1,6 @@
+.idea/
+env/
+/env
+callback_plugins/__pycache__/*.pyc
+filter_plugins/__pycache__/*.pyc
+

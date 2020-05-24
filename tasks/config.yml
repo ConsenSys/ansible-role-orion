@@ -1,0 +1,68 @@
+---
+- name: Ensure config directory exists
+  file:
+    path: "{{ orion_config_dir }}"
+    state: directory
+    owner: "{{ orion_user }}"
+    group: "{{ orion_group }}"
+  become: yes
+
+- name: Create a random orion password if none specified
+  set_fact:
+    orion_password: "{{ lookup('password', '/dev/null length=16 chars=ascii_letters') }}"
+  when: ( orion_password == "" ) and
+      ( orion_password_file == "" )
+
+- name: Create password File if none specified
+  copy:
+    content: |
+      {{ orion_password }}
+    dest: "{{ orion_config_dir }}/orion.password"
+    mode: "0600"
+    owner: "{{ orion_user }}"
+    group: "{{ orion_group }}"
+  become: true
+  when: orion_password_file == ""
+
+- name: Update password file variables
+  set_fact:
+    orion_password_file: "{{ orion_config_dir }}/orion.password"
+  when: orion_password_file == ""
+
+- name: Generate Keys
+  shell:
+    cmd: cat {{ orion_password_file }} | {{ orion_install_dir }}/bin/orion -g orion
+    chdir: "{{ orion_config_dir }}"
+    creates: "{{ orion_config_dir }}/orion.key"
+  become: true
+  become_user: "{{ orion_user }}"
+  when: orion_private_keys|length == 0
+
+- name: Update key variables
+  set_fact:
+    orion_private_keys: ["{{ orion_config_dir }}/orion.key"]
+    orion_public_keys: ["{{ orion_config_dir }}/orion.pub"]
+  when: orion_private_keys|length == 0
+
+- name: Generate config file
+  template:
+    src: "orion.conf.j2"
+    dest: "{{ orion_config_dir }}/orion.conf"
+    owner: "{{ orion_user }}"
+    group: "{{ orion_group }}"
+  become: true
+  register: orion_conf
+
+- name: Set updated optionally to trigger a systemd restart at the end
+  set_fact:
+    orion_state_updates: "{{ orion_state_updates + ['orion.orion_conf'] }}"
+  when: orion_conf is changed
+
+- name: Create data directory
+  file:
+    path: "{{ orion_data_dir }}"
+    state: directory
+    owner: "{{ orion_user }}"
+    group: "{{ orion_group }}"
+    recurse: yes
+  become: true

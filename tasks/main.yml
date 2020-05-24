@@ -1,0 +1,33 @@
+---
+- name: Ensure we have orion_version
+  fail:
+    msg: You must set "orion_version" for this role to run
+  when: orion_version is not defined
+
+- name: Include OS and distribution specific variables
+  include_vars: "{{ item }}"
+  with_first_found:
+    - files:
+        - "{{ ansible_distribution|lower }}.yml"
+        - "{{ ansible_os_family|lower }}.yml"
+      skip: true
+
+- name: Install Orion
+  include_tasks: "install.yml"
+
+- name: Install libsodium
+  include_tasks: "install-libsodium.yml"
+
+- name: Get public IP address to bind to if not provided
+  include_tasks: "network_public.yml"
+  when: not orion_node_ip
+
+- name: Get private IP address to bind to if not provided
+  include_tasks: "network_private.yml"
+  when: not orion_client_ip
+
+- name: Create config
+  include_tasks: "config.yml"
+
+- name: Create Orion Service
+  include_tasks: "service.yml"

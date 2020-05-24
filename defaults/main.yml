@@ -1,0 +1,62 @@
+---
+# User and group
+orion_user: orion
+orion_group: "{{ orion_user }}"
+
+# Version to install
+orion_download_url: "https://bintray.com/consensys/binaries/download_file?file_path=orion-{{ orion_version }}.tar.gz"
+libsodium_download_url: "https://download.libsodium.org/libsodium/releases/LATEST.tar.gz"
+
+# Directory paths
+orion_base_dir: "/opt/orion"
+orion_install_dir: "{{ orion_base_dir }}/orion-{{ orion_version }}"
+orion_config_dir: "/etc/orion"
+orion_current_dir: "/opt/orion/current"
+orion_data_dir: "{{ orion_base_dir }}/data"
+orion_libsodium_dir: "{{ orion_base_dir }}/libsodium"
+orion_log_dir: "/var/log/orion"
+orion_log4j_config_file: ""
+orion_config_template: "config.toml.j2"
+orion_profile_file: "/etc/profile.d/orion-path.sh"
+
+# Managed service config
+orion_managed_service: true
+orion_systemd_state: restarted
+orion_systemd_template: orion.service.j2
+orion_systemd_dir: /etc/systemd/system
+orion_launchd_template: tech.pegasyseng.orion.plist.j2
+orion_launchd_dir: /Library/LaunchAgents
+
+# Orion config
+# public ip for the node ip
+orion_node_ip: ""
+# private ip for the client ip
+orion_client_ip: ""
+orion_default_ip: "127.0.0.1"
+orion_node_network_interface: "0.0.0.0"
+orion_node_client_interface: "0.0.0.0"
+orion_password: ""
+orion_password_file: ""
+orion_private_keys: []
+orion_public_keys: []
+orion_othernodes: []
+orion_tls: "off"
+orion_tls_server_cert: ""
+orion_tls_server_chain: []
+orion_tls_server_key: ""
+orion_tls_client_cert: ""
+orion_tls_client_chain: []
+orion_tls_client_key: ""
+orion_tls_client_trust: ""
+orion_tls_server_trust: ""
+orion_client_connection_tls: ""
+orion_client_connection_tls_server_cert: ""
+orion_client_connection_tls_server_chain: []
+orion_client_connection_tls_server_key: ""
+orion_client_connection_tls_server_trust: ""
+orion_client_connection_tls_known_clients: ""
+orion_cmdline_args: []
+orion_env_opts: []
+
+# internal state to maintain idempotency
+orion_state_updates: []

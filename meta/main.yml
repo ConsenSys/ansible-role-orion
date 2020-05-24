@@ -1,0 +1,36 @@
+---
+galaxy_info:
+  author: PegaSysEng
+  role_name: orion
+  description: Orion is an ethereum privacy client
+  company: PegaSysEng
+  license: license (Apache)
+  min_ansible_version: 2.6
+  platforms:
+    - name: Debian
+      versions:
+        - jessie
+        - stretch
+    - name: Ubuntu
+      versions:
+        - xenial
+        - bionic
+        - cosmic
+    - name: EL
+      versions:
+        - 7
+    - name: Fedora
+      versions:
+        - 28
+        - 29
+        - 30
+    - name: MacOSX
+      versions:
+        - all
+  galaxy_tags:
+    - orion
+    - privacy
+    - blockchain
+    - ethereum
+    - enterprise
+    - crypto
